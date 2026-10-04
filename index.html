@@ -14,7 +14,7 @@ html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;overscroll-b
 body{font-family:var(--cjk);color:var(--ink)}
 #app{position:fixed;inset:0;overflow:hidden;background:#000;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #stage{position:absolute;inset:0}
-#v{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transition:filter .25s}
+#v{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transition:filter .25s;pointer-events:none}
 #app.cover #v{object-fit:cover}
 #app.frozen #v{filter:saturate(.3) brightness(.62)}
 #stage.shake{animation:shake .22s linear}
@@ -23,9 +23,9 @@ body{font-family:var(--cjk);color:var(--ink)}
 #flash,#vig{position:absolute;inset:0;pointer-events:none;opacity:0}
 #flash{background:radial-gradient(circle at 50% 60%,rgba(255,211,107,.42),rgba(255,178,62,0) 60%)}
 #vig{box-shadow:inset 0 0 120px 30px rgba(255,60,48,.55)}
-.zone{position:absolute;top:30%;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:22%;border:2px dashed var(--line);border-radius:18px;pointer-events:none;transition:border-color .12s,background-color .12s}
-#zL{left:calc(12px + env(safe-area-inset-left,0px))}
-#zR{right:calc(12px + env(safe-area-inset-right,0px))}
+.zone{position:absolute;top:30%;bottom:calc(30px + env(safe-area-inset-bottom,0px));width:22%;border:2px dashed var(--line);border-radius:18px;pointer-events:none;transition:border-color .12s,background-color .12s}
+#zL{left:calc(22px + env(safe-area-inset-left,0px))}
+#zR{right:calc(22px + env(safe-area-inset-right,0px))}
 .zone.on{border-color:rgba(234,242,248,.85);background-color:rgba(234,242,248,.07)}
 .zone .zl{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 11px/1 var(--cjk);color:rgba(234,242,248,.4);letter-spacing:.2em}
 #layer{position:absolute;inset:0;pointer-events:none}
@@ -73,7 +73,8 @@ body{font-family:var(--cjk);color:var(--ink)}
 #combo.bump{animation:bump .18s}
 @keyframes bump{50%{transform:scale(1.25)}}
 button{font-family:var(--cjk)}
-#pauseBtn{pointer-events:auto;width:36px;height:36px;border-radius:50%;border:1px solid rgba(234,242,248,.35);background:rgba(6,8,11,.5);color:var(--ink);font:700 14px/1 var(--num);display:grid;place-items:center;cursor:pointer}
+#diagBtn{font:600 13px/1 var(--cjk)!important;color:rgba(234,242,248,.75)!important}
+#pauseBtn,#diagBtn{pointer-events:auto;width:36px;height:36px;border-radius:50%;border:1px solid rgba(234,242,248,.35);background:rgba(6,8,11,.5);color:var(--ink);font:700 14px/1 var(--num);display:grid;place-items:center;cursor:pointer}
 #hint{position:absolute;left:50%;top:calc(46px + env(safe-area-inset-top,0px));transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:rgba(6,8,11,.72);border:1px solid rgba(255,211,107,.45);font:600 14px/1.3 var(--cjk);color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none;max-width:70%;overflow:hidden;text-overflow:ellipsis}
 #hint.on{opacity:1}
 #waitb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 22px;border-radius:14px;background:rgba(6,8,11,.78);border:2px solid var(--gold);font:700 22px/1.3 var(--cjk);color:var(--gold);text-align:center;letter-spacing:.06em;pointer-events:none;display:none;text-shadow:0 1px 4px #000}
@@ -123,7 +124,7 @@ button{font-family:var(--cjk)}
   <div class="zone" id="zL"><div class="zl">左</div></div>
   <div class="zone" id="zR"><div class="zl">右</div></div>
   <div id="layer"><div id="dline"></div><div id="dlab"></div><div id="mashbar"><i></i></div></div>
-  <div id="hud"><div id="act"></div><div id="right"><div id="combo"><small>连击</small><span>0</span></div><button id="pauseBtn" aria-label="暂停">II</button></div></div>
+  <div id="hud"><div id="act"></div><div id="right"><div id="combo"><small>连击</small><span>0</span></div><button id="diagBtn" aria-label="诊断">诊</button><button id="pauseBtn" aria-label="暂停">II</button></div></div>
   <div id="hint"></div>
   <div id="waitb"></div>
   <button class="btn ghost" id="backBtn">返回</button>
@@ -180,7 +181,8 @@ const app=$('#app'), stage=$('#stage'), v=$('#v'), fx=$('#fx'), ctx=fx.getContex
 const zL=$('#zL'), zR=$('#zR'), hintEl=$('#hint'), actEl=$('#act'), comboEl=$('#combo'), dbgEl=$('#dbg');
 let LAG = 0.05;
 try{ const s=localStorage.getItem('qte_lag'); if(s!==null) LAG=+s; }catch(e){}
-let running=false, paused=false, auto=false, debug=false, frozenQ=null, freezeWall=0, ended=false, startAt=0;
+let running=false, paused=false, auto=false, debug=false, frozenQ=null, freezeWall=0, ended=false, startAt=0, needTap=false, nIn=0;
+const ilog=[]; function ilogAdd(x){ ilog.push(x); if(ilog.length>6) ilog.shift(); }
 let combo=0, maxCombo=0, seen={}, curRate=1, lastAct=-1;
 
 /* ---------- data prep ---------- */
@@ -333,7 +335,7 @@ function finishChain(q){
   if(h===n){ const last=q.els.length; const [x,y]=posIn(q.zone,[.5,.5]); shock(x,y,'#ffd36b',170); flashIt('#flash',.7); }
 }
 function freeze(q){ if(frozenQ||auto) return; frozenQ=q; freezeWall=performance.now(); v.pause(); app.classList.add('frozen'); hint(hintText(q), 6000); const wb=$('#waitb'); wb.innerHTML='画面在等你<small>'+hintText(q)+'</small>'; wb.style.display='block'; }
-function unfreeze(){ frozenQ=null; app.classList.remove('frozen'); $('#waitb').style.display='none'; if(running&&!paused&&!ended) v.play().catch(()=>{}); }
+function unfreeze(){ frozenQ=null; app.classList.remove('frozen'); $('#waitb').style.display='none'; if(running&&!paused&&!ended) v.play().catch(err=>{ diag('play 被拒 unfreeze '+err.name); needTap=true; const wb=$('#waitb'); wb.innerHTML='点一下屏幕继续<small>视频被系统暂停了</small>'; wb.style.display='block'; }); }
 function awaitingFirst(q){ return (q.type==='tap'||q.type==='swipe') || (q.type==='swipehold'&&!q.swiped) || (q.type==='hold'&&!q.pid) || (q.type==='double'&&!(q.pL&&q.pR)); }
 
 function activeList(){ return Q.filter(q=>q.state==='active').sort((a,b)=>a.t-b.t); }
@@ -379,29 +381,50 @@ function onUp(p,t){
 
 /* ---------- pointer input ---------- */
 const ptrs=new Map();
-app.addEventListener('pointerdown',e=>{
-  if(e.target.closest('button,.ov,textarea')) return;
-  e.preventDefault(); touched=true; initAudio(); if(AC&&AC.state==='suspended') AC.resume();
+const skipEl = el => !!(el && el.closest && el.closest('button,.ov,textarea'));
+const dirOf = (dx,dy) => Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
+function pDown(id,x,y,kind){
+  touched=true; initAudio(); if(AC&&AC.state==='suspended') AC.resume();
+  nIn++; ilogAdd(kind+'↓'+(x<innerWidth/2?'左':'右'));
+  if(needTap){ needTap=false; $('#waitb').style.display='none'; playV('tap-resume'); }
+  else if(running&&!paused&&!ended&&!frozenQ&&v.paused&&v.readyState>=2){ playV('touch-resume'); }
   if(!running||paused||ended) return;
-  const z=e.clientX<innerWidth/2?'L':'R';
-  const t0=clock()-LAG; const p={id:e.pointerId,z,x0:e.clientX,y0:e.clientY,sw:false,dir:null,t0};
-  ptrs.set(e.pointerId,p); try{app.setPointerCapture(e.pointerId);}catch(_){}
+  const z=x<innerWidth/2?'L':'R';
+  const t0=clock()-LAG; const p={id,z,x0:x,y0:y,sw:false,dir:null,t0};
+  ptrs.set(id,p);
   (z==='L'?zL:zR).classList.add('on');
   onDown(p, t0);
-},{passive:false});
-app.addEventListener('pointermove',e=>{
-  const p=ptrs.get(e.pointerId); if(!p||p.sw) return;
-  const dx=e.clientX-p.x0, dy=e.clientY-p.y0;
-  if(Math.hypot(dx,dy)>=26){ p.sw=true; p.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'); onSwipe(p,(p.t0+clock()-LAG)/2); }
-},{passive:true});
-function up(e){
-  const p=ptrs.get(e.pointerId); if(!p) return; ptrs.delete(e.pointerId);
+}
+function pMove(id,x,y){
+  const p=ptrs.get(id); if(!p||p.sw) return;
+  const dx=x-p.x0, dy=y-p.y0;
+  if(Math.hypot(dx,dy)>=26){ p.sw=true; p.dir=dirOf(dx,dy); ilogAdd('滑'+{up:'↑',down:'↓',left:'←',right:'→'}[p.dir]); onSwipe(p,(p.t0+clock()-LAG)/2); }
+}
+function pUp(id,x,y,cancel){
+  const p=ptrs.get(id); if(!p) return; ptrs.delete(id);
   const t=clock()-LAG;
-  if(!p.sw){ const dx=e.clientX-p.x0, dy=e.clientY-p.y0; if(Math.hypot(dx,dy)>=18){ p.sw=true; p.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'); onSwipe(p,(p.t0+t)/2); } }
+  if(!p.sw){ const dx=x-p.x0, dy=y-p.y0; if(Math.hypot(dx,dy)>=18){ p.sw=true; p.dir=dirOf(dx,dy); onSwipe(p,(p.t0+t)/2); } }
+  if(cancel) ilogAdd('取消');
   const still=[...ptrs.values()].some(o=>o.z===p.z); if(!still) (p.z==='L'?zL:zR).classList.remove('on');
   onUp(p,t);
 }
-app.addEventListener('pointerup',up); app.addEventListener('pointercancel',up);
+if(window.PointerEvent){
+  app.addEventListener('pointerdown',e=>{ if(skipEl(e.target)) return; e.preventDefault(); try{app.setPointerCapture(e.pointerId);}catch(_){} pDown(e.pointerId,e.clientX,e.clientY,e.pointerType==='touch'?'触':(e.pointerType==='pen'?'笔':'鼠')); },{passive:false});
+  app.addEventListener('pointermove',e=>pMove(e.pointerId,e.clientX,e.clientY),{passive:true});
+  app.addEventListener('pointerup',e=>pUp(e.pointerId,e.clientX,e.clientY,false));
+  app.addEventListener('pointercancel',e=>pUp(e.pointerId,e.clientX,e.clientY,true));
+} else {
+  app.addEventListener('touchstart',e=>{ if(skipEl(e.target)) return; e.preventDefault(); for(const t of e.changedTouches) pDown(t.identifier,t.clientX,t.clientY,'触'); },{passive:false});
+  app.addEventListener('touchmove',e=>{ for(const t of e.changedTouches) pMove(t.identifier,t.clientX,t.clientY); },{passive:true});
+  app.addEventListener('touchend',e=>{ for(const t of e.changedTouches) pUp(t.identifier,t.clientX,t.clientY,false); });
+  app.addEventListener('touchcancel',e=>{ for(const t of e.changedTouches) pUp(t.identifier,t.clientX,t.clientY,true); });
+  app.addEventListener('mousedown',e=>{ if(skipEl(e.target)) return; e.preventDefault(); pDown('m',e.clientX,e.clientY,'鼠'); });
+  app.addEventListener('mousemove',e=>pMove('m',e.clientX,e.clientY));
+  app.addEventListener('mouseup',e=>pUp('m',e.clientX,e.clientY,false));
+}
+/* iOS：游戏区内拦住系统的滚动、双指缩放、双击放大（菜单层 .ov 不拦，它要能滚） */
+['touchmove','touchend'].forEach(ev=>app.addEventListener(ev,e=>{ if(!skipEl(e.target)) e.preventDefault(); },{passive:false}));
+app.addEventListener('gesturestart',e=>e.preventDefault());
 app.addEventListener('contextmenu',e=>e.preventDefault());
 
 /* ---------- auto (bot) ---------- */
@@ -472,7 +495,7 @@ function loop(){
     const tr=frozenQ?curRate:targetRate(t);
     if(Math.abs(tr-curRate)>0.01){ curRate=tr; try{ v.playbackRate=tr; }catch(e){} }
     const k=actAt(t); if(k!==lastAct){ lastAct=k; actEl.textContent=DATA.acts[k].name; actEl.style.opacity=1; }
-    if(debug){ dbgEl.textContent='t '+t.toFixed(3)+'  ×'+v.playbackRate.toFixed(2)+'  lag '+Math.round(LAG*1000)+'ms\n'+activeList().map(q=>q.id+' '+q.type+' '+(q.t-t).toFixed(2)).join('\n'); }
+    if(debug){ dbgEl.textContent='t '+t.toFixed(3)+'  ×'+v.playbackRate.toFixed(2)+'  lag '+Math.round(LAG*1000)+'ms  '+(v.paused?'视频停':'视频播')+(frozenQ?' 等输入':'')+(needTap?' 等点击':'')+'\n输入 '+nIn+' 次  '+(window.PointerEvent?'PE':'Touch')+'  '+ilog.join(' ')+'\n'+activeList().map(q=>q.id+' '+q.type+' '+(q.t-t).toFixed(2)).join('\n'); }
   }
   drawFx(dt);
   requestAnimationFrame(loop);
@@ -514,7 +537,7 @@ function resultText(hit,inputs,perfect){
     return q.id+' '+q.label+'  '+r+(q.dts&&q.dts.length?'  '+q.dts.map(ms).join(',')+'ms':'');
   });
   const ua=/iPhone|iPad/.test(navigator.userAgent)?'iOS':(/Android/.test(navigator.userAgent)?'Android':'桌面');
-  return '雨港试玩成绩  命中 '+hit+'/'+inputs+'  完美 '+perfect+'  最长连击 '+maxCombo+'  设备 '+ua+'  延迟补偿 '+Math.round(LAG*1000)+'ms  起点 '+startAt+'s\n'+lines.join('\n');
+  return '雨港试玩成绩  命中 '+hit+'/'+inputs+'  完美 '+perfect+'  最长连击 '+maxCombo+'  设备 '+ua+'  延迟补偿 '+Math.round(LAG*1000)+'ms  起点 '+startAt+'s\n'+lines.join('\n')+'\n输入 '+nIn+' 次 '+(window.PointerEvent?'PE':'Touch')+'  诊断 '+dlog.join(' | ');
 }
 v.addEventListener('ended',finish);
 /* ---------- diagnostics ---------- */
@@ -522,7 +545,7 @@ const diagEl=$('#diag'); const dlog=[]; const isIOS=/iPhone|iPad|iPod/.test(navi
 function diag(m){ dlog.push(m); if(dlog.length>6) dlog.shift(); const e=v.error; diagEl.textContent='诊断 · '+(isIOS?'iOS':'非iOS')+' · 就绪'+v.readyState+' 网络'+v.networkState+(e?' 错误'+e.code+(e.message?' '+e.message:''):'')+'\n'+dlog.join(' | '); }
 function playV(tag){ const p=v.play(); if(p&&p.catch) p.then(()=>diag('play ok '+tag)).catch(err=>{ diag('play 被拒 '+tag+' '+err.name); hint('视频没能播放：'+err.name+'。请用 Safari 打开，关掉低电量模式后再点一次',4000); }); }
 ['loadedmetadata','canplay','playing','waiting','stalled','suspend','error','abort'].forEach(ev=>v.addEventListener(ev,()=>diag(ev)));
-if(isIOS){ $('#load').textContent='iPhone 要点「开始」才开始加载视频（约 14MB）'; }
+if(isIOS){ $('#load').textContent='iPhone 要点「开始」才开始加载视频（约 14MB）'; document.querySelector('.tips').insertAdjacentHTML('beforeend','<span>滑动别从屏幕最底边起手（那是 iPhone 回桌面的手势）</span>'); }
 let vtMode=false;
 $('#vtBtn').onclick=()=>{ vtMode=true; running=false; ['#startOv','#endOv','#pauseOv'].forEach(s=>$(s).hidden=true); $('#backBtn').style.display='block'; v.muted=false; try{v.currentTime=0;}catch(e){} playV('只测视频'); hint('纯播放测试：能看到画面在动、有声音，就说明视频没问题',3500); };
 $('#backBtn').onclick=()=>{ vtMode=false; v.pause(); $('#backBtn').style.display='none'; $('#startOv').hidden=false; diag('返回'); };
@@ -541,7 +564,9 @@ $('#resumeBtn').onclick=resume;
 $('#restartBtn').onclick=()=>startFrom(0);
 $('#againBtn').onclick=()=>startFrom(0);
 $('#autoBtn').onclick=e=>{ auto=!auto; e.target.textContent='自动演示：'+(auto?'开':'关'); };
-$('#dbgBtn').onclick=e=>{ debug=!debug; dbgEl.style.display=debug?'block':'none'; e.target.textContent='调试信息：'+(debug?'开':'关'); };
+function setDebug(on){ debug=on; dbgEl.style.display=debug?'block':'none'; $('#dbgBtn').textContent='调试信息：'+(debug?'开':'关'); }
+$('#dbgBtn').onclick=()=>setDebug(!debug);
+$('#diagBtn').onclick=()=>setDebug(!debug);
 function showLag(){ $('#lagVal').textContent=Math.round(LAG*1000)+' ms'; try{localStorage.setItem('qte_lag',LAG);}catch(e){} }
 $('#lagMinus').onclick=()=>{ LAG=Math.max(-0.1,LAG-0.01); showLag(); };
 $('#lagPlus').onclick=()=>{ LAG=Math.min(0.2,LAG+0.01); showLag(); };
