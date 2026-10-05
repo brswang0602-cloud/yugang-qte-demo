@@ -16,29 +16,33 @@ body{font-family:var(--cjk);color:var(--ink)}
 #stage{position:absolute;inset:0}
 #v{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;pointer-events:none}
 #app.cover #v{object-fit:cover}
-#dim{position:absolute;inset:0;background:rgba(6,8,11,.5);opacity:0;transition:opacity .25s;pointer-events:none}
+#dim{position:absolute;inset:0;background:rgba(6,8,11,.5);opacity:0;transition:opacity .25s;pointer-events:none;will-change:opacity}
 #app.frozen #dim{opacity:1}
 #stage.shake{animation:shake .22s linear}
 @keyframes shake{0%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-4px,-3px)}80%{transform:translate(3px,4px)}100%{transform:translate(0,0)}}
 #fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#flash,#vig{position:absolute;inset:0;pointer-events:none;opacity:0}
+#flash,#vig{position:absolute;inset:0;pointer-events:none;opacity:0;will-change:opacity}
 #flash{background:radial-gradient(circle at 50% 60%,rgba(255,211,107,.42),rgba(255,178,62,0) 60%)}
 #vig{box-shadow:inset 0 0 120px 30px rgba(255,60,48,.55)}
-.zone{position:absolute;top:calc(54px + env(safe-area-inset-top,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:24%;border:2px dashed var(--line);border-radius:18px;pointer-events:none;transition:border-color .12s,background-color .12s,box-shadow .2s}
-.zone.arm{border-color:rgba(255,211,107,.8);box-shadow:inset 0 0 48px rgba(255,211,107,.16)}
-#app.pin .zone{display:none}
-.edge{position:absolute;top:0;bottom:0;width:16%;pointer-events:none;opacity:0;transition:opacity .09s linear;display:none}
+.zone{position:absolute;top:calc(54px + env(safe-area-inset-top,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:calc(33.3% - 18px);border:1.5px dashed rgba(234,242,248,.16);border-radius:18px;pointer-events:none;transition:border-color .12s,background-color .12s,box-shadow .2s}
+.zone.arm{border-color:rgba(255,211,107,.5);box-shadow:inset 0 0 40px rgba(255,211,107,.08)}
+#app.pin .zone{border-color:rgba(234,242,248,.12)}
+#app.pin .zone.arm{border-color:rgba(255,211,107,.4);box-shadow:none}
+.edge{position:absolute;top:0;bottom:0;width:16%;pointer-events:none;opacity:0;display:none;will-change:opacity}
+.edge::after{content:'';position:absolute;inset:0;background:inherit;filter:brightness(2.4) saturate(.3);opacity:0;will-change:opacity}
 #eL{left:0;background:linear-gradient(90deg,rgba(255,211,107,.85),rgba(255,211,107,.28) 45%,rgba(255,211,107,0))}
 #eR{right:0;background:linear-gradient(270deg,rgba(255,211,107,.85),rgba(255,211,107,.28) 45%,rgba(255,211,107,0))}
 #app.pin .edge{display:block}
-.edge.hitf{animation:eflash .3s ease-out}
-@keyframes eflash{0%{filter:brightness(2.4) saturate(.3)}100%{filter:none}}
+.edge.hitf::after{animation:eflash .3s ease-out}
+@keyframes eflash{0%{opacity:1}100%{opacity:0}}
 .zone.hitf{animation:zflash .28s ease-out}
 @keyframes zflash{0%{background-color:rgba(255,211,107,.38)}100%{background-color:transparent}}
-#zL{left:calc(22px + env(safe-area-inset-left,0px))}
-#zR{right:calc(22px + env(safe-area-inset-right,0px))}
-.zone.on{border-color:rgba(234,242,248,.85);background-color:rgba(234,242,248,.07)}
-.zone .zl{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 11px/1 var(--cjk);color:rgba(234,242,248,.4);letter-spacing:.2em}
+#zL{left:calc(10px + env(safe-area-inset-left,0px))}
+#zR{right:calc(10px + env(safe-area-inset-right,0px))}
+.zone.on{border-color:rgba(234,242,248,.5);background-color:rgba(234,242,248,.04)}
+.zone .zl{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:600 11px/1 var(--cjk);color:rgba(234,242,248,.22);letter-spacing:.2em}
+.qp .tether{position:absolute;left:0;top:0;height:0;border-top:1px dashed rgba(255,211,107,.5);transform-origin:0 0;pointer-events:none;display:none}
+.qp .tdot{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:rgba(255,211,107,.85);box-shadow:0 0 6px rgba(255,211,107,.6);pointer-events:none;display:none}
 #layer{position:absolute;inset:0;pointer-events:none}
 /* prompts */
 .qp{position:absolute;width:0;height:0;pointer-events:none}
@@ -65,8 +69,11 @@ body{font-family:var(--cjk);color:var(--ink)}
 .qp.beat .ring{width:52px;height:52px;left:-26px;top:-26px;border-color:var(--amber)}
 .qp.mash .core{width:78px;height:78px;left:-39px;top:-39px;font-size:30px;border-color:var(--red);animation:mp .12s infinite alternate}
 @keyframes mp{from{transform:scale(1)}to{transform:scale(1.07)}}
-.qp.big .core{animation:pulse .5s ease-in-out infinite alternate}
-@keyframes pulse{from{box-shadow:0 0 0 0 rgba(255,211,107,.0)}to{box-shadow:0 0 0 12px rgba(255,211,107,.28)}}
+.qp .halo{position:absolute;left:-31px;top:-31px;width:62px;height:62px;border-radius:50%;box-sizing:border-box;border:9px solid rgba(255,211,107,.4);opacity:0;will-change:transform,opacity;pointer-events:none}
+.qp.big .halo{animation:pulse .5s ease-in-out infinite alternate}
+.qp.hold .arc{opacity:.3}
+.qp.hold.pressed .arc{opacity:1}
+@keyframes pulse{from{transform:scale(1);opacity:0}to{transform:scale(1.38);opacity:.9}}
 .qp.hit{animation:hitpop .36s ease-out forwards}
 @keyframes hitpop{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
 .qp.miss{animation:missfall .5s ease-in forwards}
@@ -148,7 +155,7 @@ button{font-family:var(--cjk)}
       <div class="lead">一段两分半的机甲战。画面里的人每做一个关键动作，提示就贴在画面里动作发生的位置；哪一侧的边亮，就用哪只手——手指按在那一侧的任何地方都行，不用去点圈。越往后越快。</div>
       <div class="tips"><span>横屏</span><span>打开声音</span><span>两只拇指搭在屏幕两侧</span><span>手指按在那一侧任何地方都行</span><span>点错不会结束，视频照常往下走</span></div>
       <div class="row"><button class="btn" id="startBtn">开始</button><span id="load">视频加载中…</span><button class="btn ghost" id="vtBtn">只测视频（不带 QTE）</button></div>
-      <div class="row"><button class="btn ghost" id="pmodeBtn"></button><button class="btn ghost" id="slowBtn"></button><button class="btn ghost" id="fxBtn"></button><button class="btn ghost" id="preBtn"></button><span class="small">「贴在动作上」是新方案：提示出现在画面里动作发生的位置，两侧只有光边，每个动作前有预拍；「两侧框里」是旧版，用来对比。卡顿的话先关「慢动作」和「特效」试试。</span></div>
+      <div class="row"><button class="btn ghost" id="pmodeBtn"></button><button class="btn ghost" id="slowBtn"></button><button class="btn ghost" id="fxBtn"></button><button class="btn ghost" id="preBtn"></button><span class="small">「贴在动作上」：提示落在左右三分之一的框里、和画面里的动作同一高度，离得远就拉一条细线指过去；每个动作前有预拍，圈在最后 0.3 秒减速贴合。「两侧框里」是旧版，用来对比。慢动作默认关（iPhone 上视频变速会卡一下），想看原设计再打开。</span></div>
       <div id="diag"></div>
       <div class="small">从某一段开始（试玩或调整用）</div>
       <div class="chips" id="chapters"></div>
@@ -193,7 +200,7 @@ const DATA = {"tiers": {"1": {"name": "教学", "lead": 2.0, "win": 0.45, "slow"
 const $ = s => document.querySelector(s);
 const app=$('#app'), stage=$('#stage'), v=$('#v'), fx=$('#fx'), ctx=fx.getContext('2d'), layer=$('#layer');
 const zL=$('#zL'), zR=$('#zR'), eL=$('#eL'), eR=$('#eR'), hintEl=$('#hint'), actEl=$('#act'), comboEl=$('#combo'), dbgEl=$('#dbg');
-const SET={pmode:'in',slow:1,fx:1,pre:1}; try{ Object.assign(SET,JSON.parse(localStorage.getItem('qte_set')||'{}')); }catch(e){}
+const SET={pmode:'in',slow:0,fx:1,pre:1,v:4}; try{ const st=JSON.parse(localStorage.getItem('qte_set')||'{}'); Object.assign(SET,st); if(st.v!==4){ SET.slow=0; SET.pmode='in'; SET.v=4; } }catch(e){}
 try{ v.preservesPitch=false; v.webkitPreservesPitch=false; }catch(e){}
 let LAG = 0.05;
 try{ const s=localStorage.getItem('qte_lag'); if(s!==null) LAG=+s; }catch(e){}
@@ -229,7 +236,7 @@ function clock(){
 /* ---------- layout ---------- */
 function fit(){
   app.classList.toggle('pin',SET.pmode==='in');
-  const d=Math.min(2,window.devicePixelRatio||1); fx.width=innerWidth*d; fx.height=innerHeight*d; ctx.setTransform(d,0,0,d,0,0);
+  const d=Math.min(1.5,window.devicePixelRatio||1); fx.width=innerWidth*d; fx.height=innerHeight*d; ctx.setTransform(d,0,0,d,0,0);
   app.classList.toggle('cover', innerWidth/innerHeight > 1.78);
   document.querySelectorAll('.qp').forEach(place);
   placeDouble();
@@ -237,9 +244,12 @@ function fit(){
 addEventListener('resize', fit); addEventListener('orientationchange', ()=>setTimeout(fit,200));
 function zr(z){ return (z==='L'?zL:zR).getBoundingClientRect(); }
 function vidRect(){ const W=innerWidth,H=innerHeight, ar=(v.videoWidth&&v.videoHeight)?v.videoWidth/v.videoHeight:16/9; const cover=app.classList.contains('cover'); let w,h; if((W/H>ar)===cover){ w=W; h=W/ar; } else { h=H; w=H*ar; } return {left:(W-w)/2, top:(H-h)/2, width:w, height:h}; }
-function pinXY(p){ const r=vidRect(); const x=r.left+p[0]*r.width, y=r.top+p[1]*r.height; return [Math.max(40,Math.min(innerWidth-40,x)), Math.max(60,Math.min(innerHeight-84,y))]; }
+function layoutChain(q){ const side=q.zone==='R'?'R':'L', z=zr(side), r=vidRect(); const P=q.pins.map(p=>[r.left+p[0]*r.width, r.top+p[1]*r.height]); const n=P.length; let dx=P[n-1][0]-P[0][0], dy=P[n-1][1]-P[0][1], d=Math.hypot(dx,dy); if(d<1){ dx=0; dy=1; d=1; } const ux=dx/d, uy=dy/d; const step=n>1?Math.max(58,Math.min(90,d/(n-1))):0, len=step*(n-1);
+  let sx=Math.max(z.left+36,Math.min(z.right-36,P[0][0])), sy=Math.max(z.top+40,Math.min(z.bottom-72,P[0][1])); const ex=sx+ux*len, ey=sy+uy*len; sx+=Math.max(z.left+36,Math.min(z.right-36,ex))-ex; sy+=Math.max(z.top+40,Math.min(z.bottom-72,ey))-ey;
+  return P.map((p,i)=>({x:sx+ux*step*i, y:sy+uy*step*i, ax:p[0], ay:p[1]})); }
+function pinXY(p,side){ const r=vidRect(); const ax=r.left+p[0]*r.width, ay=r.top+p[1]*r.height; const z=zr(side==='R'?'R':'L'); const x=Math.max(z.left+36,Math.min(z.right-36,ax)), y=Math.max(z.top+40,Math.min(z.bottom-72,ay)); return {x,y,ax,ay}; }
 function updEdge(t){
-  if(SET.pmode!=='in'){ eL.style.opacity=0; eR.style.opacity=0; return; }
+  if(SET.pmode!=='in'){ if(eL._o!=='0'){ eL._o='0'; eL.style.opacity=0; } if(eR._o!=='0'){ eR._o='0'; eR.style.opacity=0; } return; }
   const g={L:0,R:0};
   for(const q of Q){ if(q.state!=='active') continue; let a;
     if(q.type==='chain'){ const i=Math.min(q.next,q.beats.length-1); a=0.3+0.7*Math.max(0,Math.min(1,1-(q.beats[i]-t)/0.5)); }
@@ -248,12 +258,16 @@ function updEdge(t){
     else a=0.85;
     zonesOf(q).forEach(z=>{ g[z]=Math.max(g[z],a); }); }
   for(const p of ptrs.values()){ if(g[p.z]!=null) g[p.z]=Math.max(g[p.z],0.55); }
-  eL.style.opacity=g.L.toFixed(2); eR.style.opacity=g.R.toFixed(2);
+  const oa=g.L.toFixed(2), ob=g.R.toFixed(2); if(eL._o!==oa){ eL._o=oa; eL.style.opacity=oa; } if(eR._o!==ob){ eR._o=ob; eR.style.opacity=ob; }
 }
 function updArm(){ const a={L:false,R:false}; for(const q of Q){ if(q.state!=='active') continue; zonesOf(q).forEach(z=>a[z]=true); } zL.classList.toggle('arm',a.L); zR.classList.toggle('arm',a.R); }
 function zflash(z){ if(!SET.fx) return; const IN=SET.pmode==='in'; (z==='any'?['L','R']:[z]).forEach(k=>{ const el=IN?(k==='L'?eL:eR):(k==='L'?zL:zR); el.classList.remove('hitf'); void el.offsetWidth; el.classList.add('hitf'); }); }
 function posIn(z,p){ const r=zr(z==='any'?'L':z); return [r.left+r.width*p[0], r.top+r.height*p[1]]; }
-function place(el){ let x,y; if(SET.pmode==='in'&&el._pin){ [x,y]=pinXY(el._pin); } else { if(!el._z) return; [x,y]=posIn(el._z, el._p||[.5,.5]); } el.style.left=x+'px'; el.style.top=y+'px'; }
+function place(el){ let x,y; const te=el.querySelector('.tether'), td=el.querySelector('.tdot');
+  if(SET.pmode==='in'&&el._pin){ const side=el._z==='any'?(el._pin[0]<0.5?'L':'R'):el._z; const o=(el._q&&el._q.type==='chain'&&el._q.pins)?layoutChain(el._q)[el._i]:pinXY(el._pin,side); x=o.x; y=o.y; const dx=o.ax-x, dy=o.ay-y, d=Math.hypot(dx,dy);
+    if(te&&td){ if(d>70&&!(el._q&&el._q.type==='chain'&&el._i>0)){ const ang=Math.atan2(dy,dx), ux=dx/d, uy=dy/d; te.style.display='block'; te.style.left=(38*ux)+'px'; te.style.top=(38*uy)+'px'; te.style.width=(d-44)+'px'; te.style.transform='rotate('+ang+'rad)'; td.style.display='block'; td.style.left=dx+'px'; td.style.top=dy+'px'; } else { te.style.display='none'; td.style.display='none'; } } }
+  else { if(!el._z) return; [x,y]=posIn(el._z, el._p||[.5,.5]); if(te){ te.style.display='none'; td.style.display='none'; } }
+  el.style.left=x+'px'; el.style.top=y+'px'; }
 
 /* ---------- audio ---------- */
 let AC=null, master=null, NB=null;
@@ -274,8 +288,8 @@ const sfx={
 function cue(q,t){
   if(!SET.pre||auto||q.type==='mash') return;
   if(q.type==='chain'){ const i=q.next; if(i<q.beats.length && !q.cued[i] && t>=q.beats[i]-0.02){ q.cued[i]=1; sfx.beat(false); } return; }
-  const times=[q.t-1.0,q.t-0.5,q.t];
-  while(q.cueK<3 && t>=times[q.cueK]-0.02){ const j=q.cueK++; if(times[j]<q.appear-0.05) continue; if(j<2) sfx.pre(); else { sfx.beat(true); haptic(false); } }
+  const times=[q.t-1.0,q.t-0.5,q.t-0.25,q.t];
+  while(q.cueK<4 && t>=times[q.cueK]-0.02){ const j=q.cueK++; if(times[j]<q.appear-0.05) continue; if(j<3) sfx.pre(); else sfx.beat(true); }
 }
 /* ---------- haptics (Android vibrate; iOS 18 switch trick) ---------- */
 const hl=document.createElement('label'); hl.setAttribute('inert',''); hl.style.cssText='position:fixed;left:-99px;top:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none'; hl.innerHTML='<input type="checkbox" switch tabindex="-1">'; document.body.appendChild(hl);
@@ -306,9 +320,9 @@ function flashIt(sel,a){ const e=$(sel); e.style.transition='none'; e.style.opac
 /* ---------- prompt elements ---------- */
 const ARW={up:'↑',down:'↓',left:'←',right:'→'}, DXY={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 const ARC='<svg class="arc" viewBox="0 0 84 84"><circle class="bg" cx="42" cy="42" r="38"/><circle class="fg" cx="42" cy="42" r="38"/><line x1="80" y1="42" x2="88" y2="42"/></svg>';
-function mk(q,z,p,cls,core,lab,sub,pin){
-  const el=document.createElement('div'); el.className='qp '+cls; el._z=z; el._p=p||[.5,.5]; el._pin=pin||null;
-  el.innerHTML = (cls.includes('hold')?ARC:'<div class="ring"></div>') + '<div class="core">'+core+'</div>' + (lab?'<div class="lab">'+lab+(sub?'<span class="sub">'+sub+'</span>':'')+'</div>':'');
+function mk(q,z,p,cls,core,lab,sub,pin,i){
+  const el=document.createElement('div'); el.className='qp '+cls; el._z=z; el._p=p||[.5,.5]; el._pin=pin||null; el._q=q; el._i=i||0;
+  el.innerHTML = '<div class="tether"></div><div class="tdot"></div>' + (cls.includes('hold')?ARC:'') + '<div class="ring"></div><div class="halo"></div>' + '<div class="core">'+core+'</div>' + (lab?'<div class="lab">'+lab+(sub?'<span class="sub">'+sub+'</span>':'')+'</div>':'');
   if(q.dir){ el.style.setProperty('--dx',DXY[q.dir][0]); el.style.setProperty('--dy',DXY[q.dir][1]); }
   layer.appendChild(el); place(el); return el;
 }
@@ -320,8 +334,8 @@ function hintText(q){
     case 'tap': return '在亮起的那一侧，圈缩到点上时点一下';
     case 'swipe': return q.zone==='any' ? '在任意一侧'+d+'滑动' : '在'+(q.zone==='L'?'左':'右')+'侧'+d+'滑动';
     case 'swipehold': return d+'滑动后别松手，按住直到圆环走满';
-    case 'hold': return q.release ? '按住蓄力，圆环走满的瞬间松手' : '按住不放，直到圆环走满';
-    case 'double': return '左右两边同时按住，直到圆环走满';
+    case 'hold': return q.release ? '圈缩到点上时按下蓄力，圆环走满的瞬间松手' : '圈缩到点上时按住不放，直到圆环走满';
+    case 'double': return '圈缩到点上时左右两边同时按住，直到圆环走满';
     case 'chain': return '一串点：按数字顺序，圈缩到哪个点哪个';
     case 'mash': return '两只手一起狂点！';
   }
@@ -329,18 +343,20 @@ function hintText(q){
 let hintTimer=0;
 function hint(txt,ms){ hintEl.textContent=txt; hintEl.classList.add('on'); clearTimeout(hintTimer); hintTimer=setTimeout(()=>hintEl.classList.remove('on'), ms||2200); }
 
+let longN=0, longMax=0, lastEv=null; const longBy={};
+function mark(k){ lastEv={k,t:performance.now()}; }
 function activate(q){
-  q.state='active'; q.els=[];
+  mark('出现'); q.state='active'; q.els=[];
   const IN=SET.pmode==='in';
   const zs=IN&&(q.zone==='any'||q.type==='mash') ? ['any'] : zonesOf(q);
   const pin=q.pin||(q.zone==='L'?[0.3,0.5]:q.zone==='R'?[0.7,0.5]:[0.5,0.45]);
-  const pins=q.pins||(q.beats?q.beats.map((b,i)=>[pin[0]+(i-(q.beats.length-1)/2)*0.07,pin[1]]):[[0.3,0.5],[0.7,0.5]]);
+  const pins=q.pins||(q.beats?q.beats.map((b,i)=>[pin[0]+(i-(q.beats.length-1)/2)*0.07,pin[1]]):[[0.3,0.5],[0.7,0.5]]); if(q.type==='chain') q.pins=pins;
   if(q.type==='tap') q.els=zs.map(z=>mk(q,z,q.pos,'tap big','<b>●</b>',q.label,SUB.tap,pin));
   else if(q.type==='swipe') q.els=zs.map(z=>mk(q,z,q.pos,'swipe big','<span>'+ARW[q.dir]+'</span>',q.label,SUB.swipe,pin));
   else if(q.type==='swipehold') q.els=zs.map(z=>mk(q,z,q.pos,'swipe sh big','<span>'+ARW[q.dir]+'</span>',q.label,SUB.swipehold,pin));
-  else if(q.type==='hold') q.els=zs.map(z=>mk(q,z,q.pos,'hold','<b>按</b>',q.label,q.release?'满了就松':'按住',pin));
-  else if(q.type==='double'){ q.els=['L','R'].map((z,i)=>mk(q,z,q.pos,'hold','<b>按</b>','',null,pins[i])); showDouble(q.label,q); }
-  else if(q.type==='chain'){ q.next=0; q.bres=[]; q.els=q.beats.map((b,i)=>mk(q,q.zone,q.pos[i],'beat dim','<b>'+(i+1)+'</b>', i===0?q.label:'', i===0?SUB.chain:null,pins[i])); }
+  else if(q.type==='hold'){ q.els=zs.map(z=>mk(q,z,q.pos,'hold big','<b>按</b>',q.label,q.release?'满了就松':'按住',pin)); for(const p of ptrs.values()){ if(zoneOk(q,p.z)){ q.prePid=p.id; break; } } }
+  else if(q.type==='double'){ q.els=['L','R'].map((z,i)=>mk(q,z,q.pos,'hold big','<b>按</b>','',null,pins[i])); showDouble(q.label,q); }
+  else if(q.type==='chain'){ q.next=0; q.bres=[]; q.els=q.beats.map((b,i)=>mk(q,q.zone,q.pos[i],'beat dim','<b>'+(i+1)+'</b>', i===0?q.label:'', i===0?SUB.chain:null,pins[i],i)); }
   else if(q.type==='mash'){ q.count=0; q.els=zs.map(z=>mk(q,z,q.pos,'mash','<b>0</b>',q.label,SUB.mash,pin)); $('#mashbar').style.display='block'; }
   const key=q.type+(q.release?'r':'')+(q.dir||'');
   if(q.tier===1 || !seen[key]){ hint(hintText(q), q.tier===1?3200:2400); seen[key]=1; }
@@ -356,7 +372,7 @@ function grade(dt,win){ return Math.abs(dt)<=win*0.4 ? 'perfect' : 'good'; }
 function bumpCombo(){ combo++; maxCombo=Math.max(maxCombo,combo); comboEl.querySelector('span').textContent=combo; comboEl.style.opacity=combo>=2?1:0; comboEl.classList.remove('bump'); void comboEl.offsetWidth; comboEl.classList.add('bump'); }
 function breakCombo(){ combo=0; comboEl.style.opacity=0; }
 function resolve(q,res,dt){
-  if(q.state!=='active') return;
+  if(q.state!=='active') return; mark(res==='miss'?'失误':'命中');
   q.state='done'; q.res=res; if(dt!=null) (q.dts=q.dts||[]).push(dt);
   if(q.type==='double') hideDouble();
   if(q.type==='mash') $('#mashbar').style.display='none';
@@ -369,20 +385,20 @@ function resolve(q,res,dt){
   if(frozenQ===q) unfreeze();
 }
 function beatHit(q,i,dt){
-  if(q.state!=='active'||q.bres[i]) return;
+  if(q.state!=='active'||q.bres[i]) return; mark('命中');
   q.bres[i]=grade(dt,q.bw[i]); (q.dts=q.dts||[]).push(dt); q.next=i+1;
   const el=q.els[i]; if(el) fxHit([el],q.bres[i],false); if(q.heavy){ if(SET.fx){ stage.classList.remove('shake'); void stage.offsetWidth; stage.classList.add('shake'); } sfx.heavy(); }
   sfx[q.bres[i]](); haptic(false); bumpCombo(); if(el) retire(el,'hit'); q.els[i]=null;
   if(q.next>=q.beats.length) finishChain(q);
 }
-function beatMiss(q,i){ if(q.state!=='active') return; q.bres[i]='miss'; q.next=i+1; breakCombo(); const el=q.els[i]; if(el){ fxMiss([el]); retire(el,'miss'); } sfx.miss(); q.els[i]=null; if(q.next>=q.beats.length) finishChain(q); }
+function beatMiss(q,i){ if(q.state!=='active') return; mark('失误'); q.bres[i]='miss'; q.next=i+1; breakCombo(); const el=q.els[i]; if(el){ fxMiss([el]); retire(el,'miss'); } sfx.miss(); q.els[i]=null; if(q.next>=q.beats.length) finishChain(q); }
 function finishChain(q){
   q.state='done'; const h=q.bres.filter(r=>r!=='miss').length, n=q.beats.length;
   q.res = h===n ? (q.bres.every(r=>r==='perfect')?'perfect':'good') : (h>0?'partial':'miss'); q.hits=h;
   if(h===n){ const last=q.els.length; const [x,y]=posIn(q.zone,[.5,.5]); shock(x,y,'#ffd36b',170); flashIt('#flash',.7); }
 }
-function freeze(q){ if(frozenQ||auto) return; frozenQ=q; freezeWall=performance.now(); v.pause(); app.classList.add('frozen'); hint(hintText(q), 6000); const wb=$('#waitb'); wb.innerHTML='画面在等你<small>'+hintText(q)+'</small>'; wb.style.display='block'; }
-function unfreeze(){ frozenQ=null; app.classList.remove('frozen'); $('#waitb').style.display='none'; if(running&&!paused&&!ended) v.play().catch(err=>{ diag('play 被拒 unfreeze '+err.name); needTap=true; const wb=$('#waitb'); wb.innerHTML='点一下屏幕继续<small>视频被系统暂停了</small>'; wb.style.display='block'; }); }
+function freeze(q){ if(frozenQ||auto) return; mark('停'); frozenQ=q; freezeWall=performance.now(); v.pause(); app.classList.add('frozen'); hint(hintText(q), 6000); const wb=$('#waitb'); wb.innerHTML='画面在等你<small>'+hintText(q)+'</small>'; wb.style.display='block'; }
+function unfreeze(){ mark('续'); frozenQ=null; app.classList.remove('frozen'); $('#waitb').style.display='none'; if(running&&!paused&&!ended) v.play().catch(err=>{ diag('play 被拒 unfreeze '+err.name); needTap=true; const wb=$('#waitb'); wb.innerHTML='点一下屏幕继续<small>视频被系统暂停了</small>'; wb.style.display='block'; }); }
 function awaitingFirst(q){ return (q.type==='tap'||q.type==='swipe') || (q.type==='swipehold'&&!q.swiped) || (q.type==='hold'&&!q.pid) || (q.type==='double'&&!(q.pL&&q.pR)); }
 
 function activeList(){ return Q.filter(q=>q.state==='active').sort((a,b)=>a.t-b.t); }
@@ -395,10 +411,12 @@ function onDown(p,t){
     const fz = frozenQ===q;
     if(q.type==='chain'){ const i=q.next; if(i<q.beats.length){ const b=q.beats[i], w=q.bw[i]; if(Math.abs(t-b)<=w){ beatHit(q,i,t-b); return; } if(t<b-w) return; } continue; }
     if(q.type==='tap'){ if(fz){ resolve(q,'good',0); return; } const dt=t-q.t; if(Math.abs(dt)<=q.win){ resolve(q,grade(dt,q.win),dt); return; } if(dt<-q.win){ nudge(q); return; } continue; }
-    if(q.type==='hold' && !q.pid){ if(fz || t<=q.t+q.win){ q.pid=p.id; q.pressT=t; q.els.forEach(el=>el.classList.add('pressed')); sfx.press(); if(fz) unfreeze(); return; } continue; }
-    if(q.type==='double' && !(q.pL&&q.pR)){ if(fz || t<=q.t+q.win){ if(p.z==='L'&&!q.pL){q.pL=p.id; q.els[0].classList.add('pressed');} else if(p.z==='R'&&!q.pR){q.pR=p.id; q.els[1].classList.add('pressed');} sfx.press(); if(q.pL&&q.pR){ q.pressT=t; if(fz) unfreeze(); } return; } continue; }
+    if(q.type==='hold' && !q.pid){ if(fz || t>=q.t-q.win){ if(fz || t<=q.t+q.win){ startHold(q,p.id,t,fz?'good':grade(t-q.t,q.win),fz?0:t-q.t); if(fz) unfreeze(); return; } continue; } q.prePid=p.id; nudge(q); return; }
+    if(q.type==='double' && !(q.pL&&q.pR)){ if(fz || t>=q.t-q.win-0.15){ if(fz || t<=q.t+q.win){ if(p.z==='L'&&!q.pL){q.pL=p.id; pressEl(q.els[0]);} else if(p.z==='R'&&!q.pR){q.pR=p.id; pressEl(q.els[1]);} sfx.press(); if(q.pL&&q.pR){ q.pressT=t; q.startRes=fz?'good':grade(t-q.t,q.win); (q.dts=q.dts||[]).push(fz?0:t-q.t); if(fz) unfreeze(); } return; } continue; } nudge(q); return; }
   }
 }
+function pressEl(el){ if(!el) return; el.classList.add('pressed'); el.classList.remove('big'); const r=el.querySelector('.ring'); if(r) r.remove(); }
+function startHold(q,pid,t,res,dt){ q.pid=pid; q.pressT=t; q.startRes=res; (q.dts=q.dts||[]).push(dt); q.els.forEach(pressEl); sfx.press(); }
 function nudge(q){ q.els.forEach(el=>{el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong');}); }
 function onSwipe(p,t){
   for(const q of activeList()){
@@ -418,6 +436,7 @@ function onSwipe(p,t){
 function onUp(p,t){
   for(const q of Q){
     if(q.state!=='active') continue;
+    if(q.type==='hold' && q.prePid===p.id) q.prePid=null;
     if(q.type==='hold' && q.pid===p.id){
       if(q.release){ if(t<q.end-q.win) resolve(q,'miss',t-q.end); else resolve(q,grade(t-q.end,q.win),t-q.end); }
       else if(t<q.end-0.05) resolve(q,'miss');
@@ -435,7 +454,7 @@ function pDown(id,x,y,kind){
   nIn++; ilogAdd(kind+'↓'+(x<innerWidth/2?'左':'右'));
   if(needTap){ needTap=false; $('#waitb').style.display='none'; playV('tap-resume'); }
   else if(running&&!paused&&!ended&&!frozenQ&&v.paused&&v.readyState>=2){ playV('touch-resume'); }
-  if(!running||paused||ended) return;
+  if(!running||paused||ended) return; mark('按下');
   const z=x<innerWidth/2?'L':'R';
   const t0=clock()-LAG; const p={id,z,x0:x,y0:y,sw:false,dir:null,t0};
   ptrs.set(id,p);
@@ -479,8 +498,8 @@ function botAct(q,t){
   switch(q.type){
     case 'tap': case 'swipe': if(t>=q.t){ if(q.type==='swipe') sfx.whoosh(); resolve(q,'perfect',0);} break;
     case 'swipehold': if(!q.swiped&&t>=q.t){ q.swiped=true; q.pid='bot'; q.swRes='perfect'; sfx.whoosh(); q.els.forEach(el=>{el.classList.remove('big'); el.classList.add('pressed'); el.querySelector('.core').innerHTML='<b>按</b>'; const s=el.querySelector('.ring'); if(s) s.remove(); el.insertAdjacentHTML('afterbegin',ARC);}); } break;
-    case 'hold': if(!q.pid&&t>=q.t-0.05){ q.pid='bot'; q.pressT=q.t; q.els.forEach(el=>el.classList.add('pressed')); } if(q.release&&q.pid==='bot'&&t>=q.end) resolve(q,'perfect',0); break;
-    case 'double': if(!q.pL&&t>=q.t-0.05){ q.pL=q.pR='bot'; q.pressT=q.t; q.els.forEach(el=>el.classList.add('pressed')); } break;
+    case 'hold': if(!q.pid&&t>=q.t-0.05){ startHold(q,'bot',q.t,'perfect',0); } if(q.release&&q.pid==='bot'&&t>=q.end) resolve(q,'perfect',0); break;
+    case 'double': if(!q.pL&&t>=q.t-0.05){ q.pL=q.pR='bot'; q.pressT=q.t; q.startRes='perfect'; q.els.forEach(pressEl); } break;
     case 'chain': if(q.next<q.beats.length && t>=q.beats[q.next]) beatHit(q,q.next,0); break;
     case 'mash': if(t>=q.t && t<q.end && (!q.lastBot || t-q.lastBot>1/13)){ q.lastBot=t; onDown({z:Math.random()<.5?'L':'R'},t); } break;
   }
@@ -491,19 +510,19 @@ function upd(q,t){
   if(q.state!=='active') return;
   if(auto){ botAct(q,t); if(q.state!=='active') return; }
   const lateFirst = t > q.t + q.win;
-  if(q.freeze && !auto && awaitingFirst(q) && t>=q.t && !frozenQ){ freeze(q); }
+  if(q.freeze && !auto && awaitingFirst(q) && t>=q.t+q.win*0.5 && !frozenQ){ freeze(q); }
   if(frozenQ===q){ if(performance.now()-freezeWall>6000) resolve(q,'miss'); return; }
   switch(q.type){
     case 'tap': case 'swipe': if(lateFirst) resolve(q,'miss'); break;
     case 'swipehold': if(!q.swiped){ if(lateFirst) resolve(q,'miss'); } else if(t>=q.end) resolve(q,q.swRes); break;
     case 'hold':
-      if(!q.pid){ if(lateFirst) resolve(q,'miss'); }
+      if(!q.pid){ if(q.prePid&&ptrs.has(q.prePid)&&t>=q.t-q.win){ startHold(q,q.prePid,t,'good',t-q.t); q.prePid=null; } else if(lateFirst) resolve(q,'miss'); }
       else if(q.release){ if(t>=q.end-0.02) q.els.forEach(el=>el.classList.add('release')); if(t>q.end+q.win) resolve(q,'good',t-q.end); }
-      else if(t>=q.end) resolve(q,grade(Math.max(0,(q.pressT||q.t)-q.t),q.win*2));
+      else if(t>=q.end) resolve(q,q.startRes||'good');
       break;
     case 'double':
       if(!(q.pL&&q.pR)){ if(lateFirst) resolve(q,'miss'); }
-      else if(t>=q.end) resolve(q, grade(Math.max(0,(q.pressT||q.t)-q.t),q.win*2));
+      else if(t>=q.end) resolve(q, q.startRes||'good');
       break;
     case 'chain': while(q.state==='active' && q.next<q.beats.length && t>q.beats[q.next]+q.bw[q.next]) beatMiss(q,q.next); break;
     case 'mash': if(t>=q.end){ const need=q.count_need; resolve(q, q.count>=need ? (q.count>=need*1.3?'perfect':'good') : (q.count>=need/2?'partial':'miss')); } break;
@@ -511,14 +530,14 @@ function upd(q,t){
 }
 function render(q,t){
   if(q.state!=='active') return;
-  const approach = x => 1 + 1.5*Math.max(0,Math.min(1,x));
-  if(q.type==='tap'||q.type==='swipe'||(q.type==='swipehold'&&!q.swiped)){
-    const s=approach((q.t-t)/q.A); q.els.forEach(el=>{ const r=el.querySelector('.ring'); if(r) r.style.transform='scale('+s+')'; });
+  const ringScale=(r,A)=>{ if(r<=0) return 1; if(r>=A) return 2.5; const k=Math.min(0.3,A*0.4); if(r>k) return 1.35+1.15*(r-k)/(A-k); const p=1-r/k; return 1.35-0.35*(1-(1-p)*(1-p)); };
+  if(q.type==='tap'||q.type==='swipe'||(q.type==='swipehold'&&!q.swiped)||(q.type==='hold'&&!q.pid)||(q.type==='double'&&!(q.pL&&q.pR))){
+    const s=ringScale(q.t-t,q.A); q.els.forEach(el=>{ const r=el.querySelector('.ring'); if(r) r.style.transform='scale('+s+')'; });
   } else if(q.type==='hold'||q.type==='double'||(q.type==='swipehold'&&q.swiped)){
     const pr=Math.max(0,Math.min(1,(t-q.t)/(q.end-q.t)));
     q.els.forEach(el=>{ const c=el.querySelector('circle.fg'); if(c) c.style.strokeDashoffset=238.76*(1-pr); });
   } else if(q.type==='chain'){
-    q.els.forEach((el,i)=>{ if(!el) return; const b=q.beats[i]; const A=Math.min(0.9,Math.max(0.5,q.A)); if(t>=b-A) el.classList.remove('dim'); const r=el.querySelector('.ring'); if(r) r.style.transform='scale('+approach((b-t)/A)+')'; });
+    q.els.forEach((el,i)=>{ if(!el) return; const b=q.beats[i]; const A=Math.min(0.9,Math.max(0.5,q.A)); if(t>=b-A) el.classList.remove('dim'); const r=el.querySelector('.ring'); if(r) r.style.transform='scale('+ringScale(b-t,A)+')'; });
   }
 }
 function targetRate(t){
@@ -533,31 +552,32 @@ function targetRate(t){
 function actAt(t){ let k=0; DATA.acts.forEach((a,i)=>{ if(t>=a.t) k=i; }); return k; }
 
 let lastWall=performance.now();
-function loop(){
-  const w=performance.now(), dt=Math.min(0.05,(w-lastWall)/1000); lastWall=w;
+function frame(){
+  const w=performance.now(), gapMs=w-lastWall, dt=Math.min(0.05,gapMs/1000); lastWall=w;
+  if(running&&!paused&&!ended&&gapMs>50&&gapMs<1000){ longN++; longMax=Math.max(longMax,gapMs); const k=(lastEv&&w-lastEv.t<160)?lastEv.k:'无'; longBy[k]=(longBy[k]||0)+1; }
   if(running && !paused && !ended){
     const t=clock();
     for(const q of Q){ if(q.state==='pending' && t>=q.appear) activate(q); }
     for(const q of Q){ upd(q,t); render(q,t); cue(q,t); }
     updArm(); updEdge(t);
     const tr=frozenQ?curRate:targetRate(t);
-    if(Math.abs(tr-curRate)>0.01){ curRate=tr; try{ v.playbackRate=tr; }catch(e){} }
+    if(Math.abs(tr-curRate)>0.01){ curRate=tr; mark('变速'); try{ v.playbackRate=tr; }catch(e){} }
     const k=actAt(t); if(k!==lastAct){ lastAct=k; actEl.textContent=DATA.acts[k].name; actEl.style.opacity=1; }
     if(debug){ dbgEl.textContent='t '+t.toFixed(3)+'  ×'+v.playbackRate.toFixed(2)+'  lag '+Math.round(LAG*1000)+'ms  '+(v.paused?'视频停':'视频播')+(frozenQ?' 等输入':'')+(needTap?' 等点击':'')+'\n'+perfLine()+'\n输入 '+nIn+' 次  '+(window.PointerEvent?'PE':'Touch')+'  '+ilog.join(' ')+'\n'+activeList().map(q=>q.id+' '+q.type+' '+(q.t-t).toFixed(2)).join('\n'); }
   }
   drawFx(dt);
-  requestAnimationFrame(loop);
 }
+function loop(){ frame(); requestAnimationFrame(loop); }
 
 /* ---------- flow ---------- */
 function resetQ(from){
   document.querySelectorAll('.qp').forEach(el=>el.remove()); hideDouble(); $('#mashbar').style.display='none';
-  Q.forEach(q=>{ Object.assign(q,{state:q.appear<from-0.01?'skip':'pending',res:null,dts:[],pid:null,pL:null,pR:null,swiped:false,next:0,bres:[],count:0,lastBot:0,hits:0,pressT:null,els:[],cueK:0,cued:[]}); q.count_need=q.count_need||q.count; });
+  Q.forEach(q=>{ Object.assign(q,{state:q.appear<from-0.01?'skip':'pending',res:null,dts:[],pid:null,pL:null,pR:null,swiped:false,next:0,bres:[],count:0,lastBot:0,hits:0,pressT:null,els:[],cueK:0,cued:[],prePid:null,startRes:null}); q.count_need=q.count_need||q.count; });
   Q.forEach(q=>{ if(q.type==='mash') q.count_need=DATA.qtes.find(d=>d.id===q.id).count; });
   combo=0; maxCombo=0; breakCombo(); frozenQ=null; app.classList.remove('frozen'); lastAct=-1; ended=false; zL.classList.remove('arm'); zR.classList.remove('arm');
 }
 function startFrom(t0){
-  swapBlob(true); startWall=performance.now(); initAudio(); if(AC&&AC.state==='suspended') AC.resume();
+  swapBlob(true); startWall=performance.now(); initAudio(); longN=0; longMax=0; for(const k in longBy) delete longBy[k]; waitN=0; stallMs=0; waitAt=0; if(AC&&AC.state==='suspended') AC.resume();
   startAt=t0; resetQ(t0);
   ['#startOv','#endOv','#pauseOv'].forEach(s=>$(s).hidden=true);
   running=true; paused=false; curRate=1; v.playbackRate=1;
@@ -605,7 +625,7 @@ let waitN=0, stallMs=0, waitAt=0, startWall=0;
 v.addEventListener('waiting',()=>{ if(running&&!paused&&!frozenQ&&performance.now()-startWall>1200){ waitN++; waitAt=performance.now(); } });
 v.addEventListener('playing',()=>{ if(waitAt){ stallMs+=performance.now()-waitAt; waitAt=0; } });
 function vq(){ try{ if(v.getVideoPlaybackQuality){ const q=v.getVideoPlaybackQuality(); return q.droppedVideoFrames+'/'+q.totalVideoFrames; } if('webkitDroppedFrameCount' in v) return v.webkitDroppedFrameCount+'/'+v.webkitDecodedFrameCount; }catch(e){} return '?'; }
-function perfLine(){ return '缓冲'+waitN+'次 '+Math.round(stallMs)+'ms  丢帧 '+vq()+'  源:'+(onBlob?'本地整段':'网络')+'  提示:'+(SET.pmode==='in'?'贴动作':'框里')+' 慢:'+(SET.slow?'开':'关')+' 特效:'+(SET.fx?'全':'简')+' 预拍:'+(SET.pre?'开':'关'); }
+function perfLine(){ return '缓冲'+waitN+'次 '+Math.round(stallMs)+'ms  丢帧 '+vq()+'  源:'+(onBlob?'本地整段':'网络')+'  提示:'+(SET.pmode==='in'?'贴动作':'框里')+' 慢:'+(SET.slow?'开':'关')+' 特效:'+(SET.fx?'全':'简')+' 预拍:'+(SET.pre?'开':'关')+'  长帧 '+longN+'次/最长'+Math.round(longMax)+'ms'+(longN?' ['+Object.entries(longBy).map(([k,n])=>k+n).join(' ')+']':''); }
 /* ---------- 整段预下载：下完后从内存播，网络再差也不卡 ---------- */
 let blobURL=null, dlPct=-1, onBlob=false;
 function showDl(){ $('#load').textContent = dlPct>=100 ? '视频已就绪（整段已下载）' : '下载视频 '+dlPct+'%（下完再开始最流畅）'; }
@@ -650,7 +670,7 @@ const pm=location.hash.match(/^#pose-([\d.]+)(-auto)?$/);
 if(pm){ const PT=+pm[1]; auto=!!pm[2]; clockOverride=PT; resetQ(0); Q.forEach(q=>{ if((q.end||q.t)+0.5<PT) q.state='skip'; }); ['#startOv','#endOv','#pauseOv'].forEach(s=>$(s).hidden=true); running=true; paused=false; v.muted=true; const seek=()=>{ try{v.currentTime=PT;}catch(e){} }; if(v.readyState>=1) seek(); else v.addEventListener('loadedmetadata',seek,{once:true}); }
 if(location.hash==='#auto'){ auto=true; $('#autoBtn').textContent='自动演示：开'; }
 if(location.hash==='#debug'){ debug=true; dbgEl.style.display='block'; $('#dbgBtn').textContent='调试信息：开'; }
-window.__qte={Q,startFrom,get t(){return clock();},set auto(x){auto=x;},finish};
+window.__qte={Q,startFrom,get t(){return clock();},set auto(x){auto=x;},finish,tick(t){ clockOverride=t; frame(); },get ptrs(){return ptrs;}};
 fit(); requestAnimationFrame(loop); prefetch();
 })();
 </script>
